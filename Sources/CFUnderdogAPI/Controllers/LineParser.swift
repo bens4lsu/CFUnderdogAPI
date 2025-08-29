@@ -31,7 +31,8 @@ class LineParser {
     
     private func dataFromSource(_ req: Request) async throws -> [APISpread.Entry] {
         let uri = URI(string: appConfig.linesUrl)
-        let headers = HTTPHeaders([])
+        var headers = HTTPHeaders([])
+        headers.contentType = .json
         let response = try await req.client.get(uri, headers: headers).get()
         let result = try response.content.decode([APISpread.Entry].self)
         return result
