@@ -6,7 +6,9 @@ func routes(_ app: Application, _ appConfig: AppConfig, teamList: [Team]) throws
         return "It works!"
     }
 
-    
+    app.get("teamList") { req async throws -> Response in
+        return try await teamList.encodeResponse(for: req)
+    }
 
     app.get("getLines") { req async throws-> Response in
         var response: GameMatcher.GameMatcherResponseAll
@@ -16,21 +18,21 @@ func routes(_ app: Application, _ appConfig: AppConfig, teamList: [Team]) throws
             }
             
             // try several times to get succesful lines
-            var retryCount = 0
-            var lines = try? await LineParser(appConfig).parse(req)
-            while retryCount < appConfig.retryCount && lines == nil {
-                retryCount += 1
-                if retryCount < appConfig.retryCount {
-                    lines = try? await LineParser(appConfig).parse(req)
-                }
-                else {      // last chance, let the error throw
-                    lines = try await LineParser(appConfig).parse(req)
-                }
-            }
+            //var retryCount = 0
+            let lines = try await LineParser(appConfig).parse(req)
+//            while retryCount < appConfig.retryCount && lines == nil {
+//                retryCount += 1
+//                if retryCount < appConfig.retryCount {
+//                    lines = try? await LineParser(appConfig).parse(req)
+//                }
+//                else {      // last chance, let the error throw
+//                    lines = try await LineParser(appConfig).parse(req)
+//                }
+//            }
 
             let week = try await currentWeek(req)
 
-            var gameMatcherResponse = try await GameMatcher(teamList: teamList).load(req, appConfig: appConfig, lines: lines!, week: week)
+            var gameMatcherResponse = try await GameMatcher(teamList: teamList).load(req, appConfig: appConfig, lines: lines, week: week)
             if let poolUserParamContent = try? req.query.decode(PoolUserEntryContent.self),
                let poolUserParamStr = poolUserParamContent.poolUserEntryId,
                let poolUserParam = Int(poolUserParamStr)
