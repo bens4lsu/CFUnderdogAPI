@@ -58,7 +58,13 @@ class LineParser {
                let market = detail.markets.first,
                let outcome1 = market.outcomes.first
             {
-                let spreadValue = outcome1.point
+                var spreadValue = 0.0
+                if outcome1.name == home {
+                    spreadValue = -1 * outcome1.point
+                }
+                else {
+                    spreadValue = outcome1.point
+                }
                 
                 logger.trace("\(kickoff) \(away)  \(home)  \(spreadValue)")
                 lines.append(OnlineSpread(date: kickoff, awayTeamString: away, homeTeamString: home, spreadValue: spreadValue))
