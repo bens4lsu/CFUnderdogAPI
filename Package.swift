@@ -15,7 +15,7 @@ let package = Package(
         .package(url: "https://github.com/vapor/fluent-mysql-driver.git", from: "4.4.0"),
         // 🔵 Non-blocking, event-driven networking for Swift. Used for custom executors
         .package(url: "https://github.com/apple/swift-nio.git", from: "2.65.0"),
-        .package(url: "https://github.com/scinfu/SwiftSoup.git", from: "2.3.3"),
+        //.package(url: "https://github.com/scinfu/SwiftSoup.git", from: "2.3.3"),
 
     ],
     targets: [
@@ -27,7 +27,7 @@ let package = Package(
                 .product(name: "Vapor", package: "vapor"),
                 .product(name: "NIOCore", package: "swift-nio"),
                 .product(name: "NIOPosix", package: "swift-nio"),
-                .product(name: "SwiftSoup", package: "SwiftSoup"),
+                //.product(name: "SwiftSoup", package: "SwiftSoup"),
 
             ],
             swiftSettings: swiftSettings

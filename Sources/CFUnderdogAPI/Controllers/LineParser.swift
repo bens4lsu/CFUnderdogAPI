@@ -7,7 +7,6 @@
 
 import Foundation
 import Vapor
-import SwiftSoup
 
 enum LineParseError: Error {
     case expectedChildNotPresent
