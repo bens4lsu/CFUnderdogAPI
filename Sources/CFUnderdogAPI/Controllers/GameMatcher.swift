@@ -18,7 +18,9 @@ class GameMatcher {
         self.teamList = teamList
     }
     
-    struct GameMatcherResponse: Codable, Content {
+    
+    
+    struct GameMatcherResponse: Codable, Content, Sendable {
         var gameId: Int
         var homeTeam: String
         var awayTeam: String
@@ -49,7 +51,7 @@ class GameMatcher {
     }
     
     
-    struct GameMatcherResponseAll: Codable, Content {
+    struct GameMatcherResponseAll: Codable, Content, Sendable {
         var games: [GameMatcherResponse]
         var teamNameMatchErrors: [String]
         var error: String?
@@ -128,7 +130,30 @@ class GameMatcher {
                                         .filter(\.$week == weekId)
                                         .first()
     }
-    
-    
+}
 
+extension GameMatcher {
+    
+    @MainActor private static var cached: CachedGameMatcherResponse?
+    
+    @MainActor static func getCachedResponse() -> GameMatcherResponseAll? {
+        guard let cached = Self.cached else {
+            return nil
+        }
+        
+        let dt = Date()
+        if dt.timeIntervalSince(cached.date) < 3600 ||
+            dt.formatted(Date.FormatStyle().weekday(.oneDigit)) == "1" ||
+            dt.formatted(Date.FormatStyle().weekday(.oneDigit)) == "2"
+        {
+            return cached.responseAll
+        }
+        
+        return nil
+    }
+    
+    @MainActor static func cacheResponse(_ resp: GameMatcherResponseAll) async {
+        Self.cached = await CachedGameMatcherResponse(date: Date(), gameMatcherResponse: resp)
+    }
+    
 }

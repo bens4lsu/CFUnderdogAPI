@@ -12,24 +12,17 @@ func routes(_ app: Application, _ appConfig: AppConfig, teamList: [Team]) throws
 
     app.get("getLines") { req async throws-> Response in
         var response: GameMatcher.GameMatcherResponseAll
+        
+        if let cachedResponse = await GameMatcher.getCachedResponse() {
+            return try await cachedResponse.encodeResponse(for: req)
+        }
+        
         do {
             struct PoolUserEntryContent: Content {
                 var poolUserEntryId: String?
             }
             
-            // try several times to get succesful lines
-            //var retryCount = 0
             let lines = try await LineParser(appConfig).parse(req)
-//            while retryCount < appConfig.retryCount && lines == nil {
-//                retryCount += 1
-//                if retryCount < appConfig.retryCount {
-//                    lines = try? await LineParser(appConfig).parse(req)
-//                }
-//                else {      // last chance, let the error throw
-//                    lines = try await LineParser(appConfig).parse(req)
-//                }
-//            }
-
             let week = try await currentWeek(req)
 
             var gameMatcherResponse = try await GameMatcher(teamList: teamList).load(req, appConfig: appConfig, lines: lines, week: week)
@@ -40,6 +33,7 @@ func routes(_ app: Application, _ appConfig: AppConfig, teamList: [Team]) throws
                 gameMatcherResponse = try await gameMatcherResponse.exceptPickFor(req, user: poolUserParam, week: week)
             }
             response = gameMatcherResponse
+            await GameMatcher.cacheResponse(response)
         }
         catch(let e) {
             let message = Logger.Message(stringLiteral: e.localizedDescription)
