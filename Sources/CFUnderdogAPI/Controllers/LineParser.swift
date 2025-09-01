@@ -33,6 +33,9 @@ class LineParser {
         var headers = HTTPHeaders([])
         headers.contentType = .json
         let response = try await req.client.get(uri, headers: headers).get()
+        var logger = req.application.logger
+        logger.logLevel = appConfig.loggerLogLevel
+        logger.info("API requests used: \(response.headers["x-requests-used"])")
         let result = try response.content.decode([APISpread.Entry].self)
         return result
     }
