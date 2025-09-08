@@ -35,7 +35,7 @@ class LineParser {
         let response = try await req.client.get(uri, headers: headers).get()
         var logger = req.application.logger
         logger.logLevel = appConfig.loggerLogLevel
-        logger.info("API requests used: \(response.headers["x-requests-used"])")
+        logger.info("API requests used: \(response.headers["x-requests-used"]) \(Date())")
         let result = try response.content.decode([APISpread.Entry].self)
         return result
     }
